@@ -1,122 +1,132 @@
+// (1): Import the Flutter package, specifically the `material.dart` file:
 import 'package:flutter/material.dart';
 
+// (2): Import the externally-installed package that contains a bunch of English words:
+import 'package:english_words/english_words.dart';
+
+// (3): Import the externally-installed package:
+import 'package:provider/provider.dart';
+
+// (4): The main entry point for Flutter
 void main() {
+
+  // (4.1): Flutter simply runs `runApp` --- hover over it for a description:
   runApp(const MyApp());
 }
 
+// (3): Create MyApp class that extends a Flutter Widget (kind of like PyQT):
 class MyApp extends StatelessWidget {
+
+  // (3.1): Define MyApp as a constant, and pass in its key as the StatelessWidget key:
   const MyApp({super.key});
 
-  // This widget is the root of your application.
+  // (3.2): Use `build` to define the main Widget that *is the application:
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+
+    // (3.2.1): In this case, the application is a `ChangeNotifierProvider`... whatever that is:
+    return ChangeNotifierProvider(
+      
+      // (3.2.1.1): (Maybe) this creates the Widget with a given state (even though it's all supposed to be stateless...)
+      create: (context) => MyAppState(),
+
+      // (3.2.1.2): Who knows what a `MaterialApp` is at this point?
+      child: MaterialApp(
+
+        // (3.2.1.2.1): Names the application:
+        title: 'Namer App',
+
+        // (3.2.1.2.2): Defines the theme of the appplication:
+        theme: ThemeData(
+
+          // (3.2.1.2.1): ...??
+          useMaterial3: true,
+
+          // (3.2.1.2.2): Define the color scheme of the application:
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurpleAccent)
+        ),
+
+        // (3.2.1.2.3): Not sure why we need to define the `home` property...
+        home: MyHomePage(),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
+// (4): Define the application's state, i.e. all the data the app needs to run:
+class MyAppState extends ChangeNotifier {
 
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
+  // (4.1): We only store a single datum: the `currentWord`:
+  var currentWord = WordPair.random();
 
-  final String title;
+  // (4.2): Define a *function* in the AppState data that mutates the datum `currentWord`:
+  void getNextWord() {
+    
+    // (4.2.1): This *reassigns* the datum `currentWord` to another value, one generated with WordPair's `random`:
+    currentWord = WordPair.random();
 
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
+    // (4.2.2): An overpowered method that propagates the mutation to the state to *all* listening componnets (VueJS language):
+    notifyListeners();
+  }
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+// (5): Define a StatelessWidget that serves as the home page:
+class MyHomePage extends StatelessWidget {
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
-
+  // (5.1): Build the Widget with a context, as is understood now:
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+
+    // (5.1.1): Use the *entire* App's state to read and define the local app state (I think):
+    var appState = context.watch<MyAppState>();
+
+    // (5.1.2): Return a `Scaffold` Widget. It's not explained what it is, but it's used frequently:
     return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+
+      // (5.1.2.1): The Scaffold contains as its body a single column:
+      body: Column(
+
+        // (5.1.2.1.1): We now define the elements in that column --- they are the "children"
+        children: [
+
+          // (5.1.2.1.1.1): A piece of Text():
+          Text('A random HOT RELOAD idea is:'),
+
+          // (5.1.2.1.1.2): Another piece of Text() that accesses the AppState's data (with lowercase() method!):
+          Text(appState.currentWord.asLowerCase),
+
+          // (5.1.2.1.1.3): A so-called `ElevatedButton`:
+          ElevatedButton(
+
+            // (5.1.2.1.1.3.1): Provide logic for the button's `onPressed` method:
+            onPressed: () {
+
+              // (5.1.2.1.1.3.1.1): Call the AppState's function to change its word data:
+              appState.getNextWord();
+              
+            },
+
+            // (5.1.2.1.1.3.2): I guess buttons also need children: 
+            child: Text("Next Word")
+          ),
+
+          // (5.1.2.1.1.4): Another ElevatedButton:
+          ElevatedButton(
+
+            // (5.1.2.1.1.4.1): Bind the button's `onPressed` method to some logic:
+            onPressed: () {
+
+              // (5.1.2.1.1.4.2): Print to the console something different:
+              print("Button Number Two");
+
+            }, 
+            
+            // (5.1.2.1.1.4.2): Add different Text() to the button:
+            child: Text("Will the color be the same?")
+          ),
+        ],
+      )
     );
   }
 }
