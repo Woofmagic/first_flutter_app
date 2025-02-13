@@ -43,7 +43,7 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
 
           // (3.2.1.2.2): Define the color scheme of the application:
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurpleAccent)
+          colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 81, 240, 163))
         ),
 
         // (3.2.1.2.3): Not sure why we need to define the `home` property...
@@ -80,53 +80,111 @@ class MyHomePage extends StatelessWidget {
 
     // (5.1.1): Use the *entire* App's state to read and define the local app state (I think):
     var appState = context.watch<MyAppState>();
+    
+    // (5.1.2): Extract only the word pair datum in the app state:
+    var currentPair = appState.currentWord;
 
-    // (5.1.2): Return a `Scaffold` Widget. It's not explained what it is, but it's used frequently:
+    // (5.1.3): Return a `Scaffold` Widget. It's not explained what it is, but it's used frequently:
     return Scaffold(
 
-      // (5.1.2.1): The Scaffold contains as its body a single column:
-      body: Column(
-
-        // (5.1.2.1.1): We now define the elements in that column --- they are the "children"
-        children: [
-
-          // (5.1.2.1.1.1): A piece of Text():
-          Text('A random HOT RELOAD idea is:'),
-
-          // (5.1.2.1.1.2): Another piece of Text() that accesses the AppState's data (with lowercase() method!):
-          Text(appState.currentWord.asLowerCase),
-
-          // (5.1.2.1.1.3): A so-called `ElevatedButton`:
-          ElevatedButton(
-
-            // (5.1.2.1.1.3.1): Provide logic for the button's `onPressed` method:
-            onPressed: () {
-
-              // (5.1.2.1.1.3.1.1): Call the AppState's function to change its word data:
-              appState.getNextWord();
+      // (5.1.3.1): The Scaffold contains as its body a single column:
+      body: Center(
+        
+        child: Column(
+        
+          // (5.1.3.1.1): Puts the content in the Column in the center of its vertical:
+          mainAxisAlignment: MainAxisAlignment.center,
+        
+          // (5.1.3.1.2): We now define the elements in that column --- they are the "children"
+          children: [
+        
+            // (5.1.3.1.2.1): A piece of Text():
+            Text('A random HOT RELOAD idea is:'),
+        
+            // (5.1.3.1.2.2): Another piece of Text() that only reads the local app state variable `currentPair` (with lowercase() method!):
+            BigCard(currentPair: currentPair),
+        
+            // (5.1.3.1.2.3): A so-called `ElevatedButton`:
+            ElevatedButton(
+        
+              // (5.1.3.1.2.3.1): Provide logic for the button's `onPressed` method:
+              onPressed: () {
+        
+                // (5.1.3.1.2.3.1.1): Call the AppState's function to change its word data:
+                appState.getNextWord();
+                
+              },
+        
+              // (5.1.3.1.2.3.2): I guess buttons also need children: 
+              child: Text("Next Word")
+            ),
+        
+            // (5.1.3.1.2.4): Another ElevatedButton:
+            ElevatedButton(
+        
+              // (5.1.3.1.2.4.1): Bind the button's `onPressed` method to some logic:
+              onPressed: () {
+        
+                // (5.1.3.1.2.4.2): Print to the console something different:
+                print("Button Number Two");
+        
+              }, 
               
-            },
-
-            // (5.1.2.1.1.3.2): I guess buttons also need children: 
-            child: Text("Next Word")
-          ),
-
-          // (5.1.2.1.1.4): Another ElevatedButton:
-          ElevatedButton(
-
-            // (5.1.2.1.1.4.1): Bind the button's `onPressed` method to some logic:
-            onPressed: () {
-
-              // (5.1.2.1.1.4.2): Print to the console something different:
-              print("Button Number Two");
-
-            }, 
-            
-            // (5.1.2.1.1.4.2): Add different Text() to the button:
-            child: Text("Will the color be the same?")
-          ),
-        ],
+              // (5.1.3.1.2.4.2): Add different Text() to the button:
+              child: Text("Will the color be the same?")
+            ),
+          ],
+        ),
       )
+    );
+  }
+}
+
+// (6): A class extracted from the Text() widget containing the central word:
+class BigCard extends StatelessWidget {
+
+  // (6.1): ??
+  const BigCard({
+    super.key,
+    required this.currentPair,
+  });
+
+  // (6.2): ?? 
+  final WordPair currentPair;
+
+  // (6.3): Initialize the Widget:
+  @override
+  Widget build(BuildContext context) {
+
+    // (6.3.1): Extract the color information from the App's global Theme
+    final colorTheme = Theme.of(context);
+
+    // (6.3.2): Do a fancy thing by reading the *font* information from the color information earlier:
+    // :: the (!) operator ("bang") comes up if you think a property could be null, but you tell Dart that you still want to us it.
+    // :: .copyWith() is a fancy way of generating a copy of the previous text *with* new changes; Below, we change the color.
+    final style = colorTheme.textTheme.displayMedium!.copyWith(
+      color: colorTheme.colorScheme.onPrimary,
+      backgroundColor: colorTheme.colorScheme.secondary,
+    );
+
+    // (6.3.3): Return a Card with all its features configured:
+    return Card(
+      
+      // (6.3.3.1): Define the color of the Card with the primary color of the `colorScheme`:
+      color: colorTheme.colorScheme.primary,
+
+      // (6.3.3.2): A Padding object... hmmmm
+      child: Padding(
+
+        // (6.3.3.2.1): Actually specify the padding values:
+        padding: const EdgeInsets.all(20.0),
+
+        // (6.3.3.2.1): Text as the child, with its properties set...
+        child: Text(
+          currentPair.asLowerCase,
+          style: style,
+          semanticsLabel: "${currentPair.first} ${currentPair.second}",),
+      ),
     );
   }
 }
